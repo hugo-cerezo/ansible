@@ -1,10 +1,25 @@
-- name: nom playbook
+---
+- name: Installer Node.js, npm et Gatsby CLI sur Amazon Linux
   hosts: ec2
-  become: true
+  become: yes  
   tasks:
-    - name: Example from an Ansible Playbook
-      ansible.builtin.ping:
 
-    - name: Induce an exception to see what happens
-      ansible.builtin.ping:
-        data: crash
+    - name: Ajouter le dépot NodeSource pour Node.js
+      yum_repository:
+        name: nodesource
+        description: Node.js Packages for Enterprise Linux 7 - $basearch
+        baseurl: https://rpm.nodesource.com/pub_14.x/el/7/$basearch/
+        gpgcheck: no
+        enabled: yes
+      when: ansible_os_family == "RedHat"
+
+    - name: Installer Node.js et npm
+      yum:
+        name:
+          - nodejs
+        state: present
+
+    - name: Installer Gatsby CLI globalement via npm
+      npm:
+        name: gatsby-cli
+        global: yes
