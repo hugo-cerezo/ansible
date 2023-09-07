@@ -1,25 +1,21 @@
 ---
-- name: Installer Node.js, npm et Gatsby CLI sur Amazon Linux
+- name: Installer et configurer Apache
   hosts: ec2
-  become: yes  
+  become: yes
   tasks:
-
-    - name: Ajouter le dépot NodeSource pour Node.js
-      yum_repository:
-        name: nodesource
-        description: Node.js Packages for Enterprise Linux 7 - $basearch
-        baseurl: https://rpm.nodesource.com/pub_14.x/el/7/$basearch/
-        gpgcheck: no
-        enabled: yes
-      when: ansible_os_family == "RedHat"
-
-    - name: Installer Node.js et npm
+    - name: Installer le paquet httpd (Apache)
       yum:
-        name:
-          - nodejs
+        name: httpd
         state: present
 
-    - name: Installer Gatsby CLI globalement via npm
-      npm:
-        name: gatsby-cli
-        global: yes
+    - name: Démarrer et activer le service httpd
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+
+    - name: Copier le fichier index.html vers le répertoire de documents root d'Apache
+      copy:
+        src: ./index.html
+        dest: /var/www/html/index.html
+        mode: '0644'
